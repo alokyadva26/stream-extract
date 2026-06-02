@@ -25,8 +25,12 @@ app.add_middleware(
 )
 
 # Ensure downloads directory exists
-DOWNLOADS_DIR = os.path.abspath("downloads")
-os.makedirs(DOWNLOADS_DIR, exist_ok=True)
+# On serverless environments like Vercel, the root filesystem is read-only, so we use /tmp
+if os.environ.get("VERCEL") or os.environ.get("VERCEL_ENV"):
+    DOWNLOADS_DIR = "/tmp"
+else:
+    DOWNLOADS_DIR = os.path.abspath("downloads")
+    os.makedirs(DOWNLOADS_DIR, exist_ok=True)
 
 class DownloadRequest(BaseModel):
     url: str
