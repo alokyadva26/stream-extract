@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Media Extraction</title>
+    <!-- Importing Inter for a clean, professional SaaS aesthetic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="page-container">
+        <!-- Alert Banner (Hidden by default) -->
+        <div id="alert-banner" class="alert-banner hidden">
+            <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span id="alert-message">This is an alert message.</span>
+            <button id="alert-close" class="alert-close">&times;</button>
+        </div>
+
+        <div class="main-panel">
+            <div class="panel-header">
+                <div class="logo-mark">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                </div>
+                <h1 class="display-title">Media Downloader</h1>
+                <p class="subtitle">Securely extract and process high-fidelity media streams.</p>
+            </div>
+            
+            <form id="download-form" class="download-form">
+                <div class="form-group">
+                    <label for="url-input" class="input-label">Source URL</label>
+                    <div class="input-wrapper">
+                        <input type="url" id="url-input" name="url" placeholder="https://www.youtube.com/watch?v=..." required autocomplete="off">
+                        <div class="input-border"></div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="input-label">Extraction Format</label>
+                    <div class="options-grid">
+                        <div class="radio-card">
+                            <input type="radio" id="format-video" name="format" value="video" checked>
+                            <label for="format-video" class="radio-label">
+                                <span class="format-title">Video</span>
+                                <span class="format-desc">High Definition MP4</span>
+                            </label>
+                        </div>
+                        
+                        <div class="radio-card">
+                            <input type="radio" id="format-audio" name="format" value="audio">
+                            <label for="format-audio" class="radio-label">
+                                <span class="format-title">Audio</span>
+                                <span class="format-desc">Standard Quality MP3</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-group">
+                    <button type="submit" id="download-btn" class="primary-btn">
+                        Start Extraction
+                    </button>
+                </div>
+            </form>
+
+            <!-- Status Area (Hidden by default) -->
+            <div id="status-area" class="status-area hidden">
+                <div id="spinner-ring" class="spinner-ring"></div>
+                <p id="status-text" class="status-text">Establishing connection...</p>
+                
+                <div id="progress-container" class="progress-container hidden">
+                    <div class="progress-bar-bg">
+                        <div id="progress-bar-fill" class="progress-bar-fill"></div>
+                    </div>
+                    <div class="progress-stats">
+                        <span id="progress-percent">0%</span>
+                        <span id="progress-size"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/script.js" defer></script>
+</body>
+</html>
