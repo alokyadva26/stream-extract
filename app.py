@@ -72,6 +72,25 @@ def run_yt_dlp(url: str, download_type: str, task_id: str = None) -> str:
                 'percent': 100
             }
     
+    # Check for cookies in env or local file
+    cookie_path = None
+    cookies_env = os.environ.get("YT_COOKIES")
+    temp_cookies_path = None
+    if cookies_env:
+        temp_cookies_path = os.path.join(DOWNLOADS_DIR, f"cookies_{unique_id}.txt")
+        try:
+            with open(temp_cookies_path, "w", encoding="utf-8") as f:
+                f.write(cookies_env)
+            cookie_path = temp_cookies_path
+            print(f"Loaded cookies from YT_COOKIES env var into {temp_cookies_path}")
+        except Exception as e:
+            print(f"Error writing environment cookies: {e}")
+    else:
+        local_cookies = os.path.abspath("cookies.txt")
+        if os.path.exists(local_cookies):
+            cookie_path = local_cookies
+            print(f"Loaded cookies from local file: {local_cookies}")
+
     ydl_opts = {
         'outtmpl': os.path.join(DOWNLOADS_DIR, f'%(title)s_{unique_id}.%(ext)s'),
         'noplaylist': True,
@@ -80,7 +99,16 @@ def run_yt_dlp(url: str, download_type: str, task_id: str = None) -> str:
         'restrictfilenames': True,  # Prevent unicode issues in filenames
         'concurrent_fragment_downloads': 10,  # Massively speed up dash/hls fragmented downloads
         'progress_hooks': [progress_hook],
+        # Extractor args to help bypass YouTube bot detection mechanisms
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['android', 'web_creator']
+            }
+        }
     }
+
+    if cookie_path:
+        ydl_opts['cookiefile'] = cookie_path
 
     if download_type == "audio":
         ydl_opts.update({
@@ -122,6 +150,14 @@ def run_yt_dlp(url: str, download_type: str, task_id: str = None) -> str:
             return final_file
     except Exception as e:
         raise Exception(str(e))
+    finally:
+        # Clean up temporary cookies file if it was created
+        if temp_cookies_path and os.path.exists(temp_cookies_path):
+            try:
+                os.remove(temp_cookies_path)
+                print(f"Deleted temporary cookies file: {temp_cookies_path}")
+            except Exception as e:
+                print(f"Error deleting temporary cookies file: {e}")
 
 @app.post("/api/download")
 async def download_video(req: DownloadRequest, background_tasks: BackgroundTasks):

@@ -26,11 +26,41 @@ def download_youtube(video_url, save_path=".", download_type="video"):
             print(f"❌ Failed to create directory '{save_path}': {e}")
             return False
 
+    # Check for cookies in env or local file
+    cookie_path = None
+    cookies_env = os.environ.get("YT_COOKIES")
+    temp_cookies_path = None
+    if cookies_env:
+        import uuid
+        unique_id = str(uuid.uuid4())[:8]
+        temp_cookies_path = os.path.join(save_path, f"cookies_{unique_id}.txt")
+        try:
+            with open(temp_cookies_path, "w", encoding="utf-8") as f:
+                f.write(cookies_env)
+            cookie_path = temp_cookies_path
+            print(f"Loaded cookies from YT_COOKIES env var into {temp_cookies_path}")
+        except Exception as e:
+            print(f"⚠️ Error writing environment cookies: {e}")
+    else:
+        local_cookies = os.path.abspath("cookies.txt")
+        if os.path.exists(local_cookies):
+            cookie_path = local_cookies
+            print(f"Loaded cookies from local file: {local_cookies}")
+
     # Define base options
     ydl_opts = {
         'outtmpl': os.path.join(save_path, '%(title)s.%(ext)s'),
         'noplaylist': True,  # Prevent downloading entire playlist if URL contains playlist parameters
+        # Extractor args to help bypass YouTube bot detection mechanisms
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['android', 'web_creator']
+            }
+        }
     }
+
+    if cookie_path:
+        ydl_opts['cookiefile'] = cookie_path
 
     if download_type == "audio":
         ydl_opts.update({
@@ -61,6 +91,13 @@ def download_youtube(video_url, save_path=".", download_type="video"):
     except Exception as e:
         print(f"\n❌ An error occurred: {e}")
         return False
+    finally:
+        # Clean up temporary cookies file if it was created
+        if temp_cookies_path and os.path.exists(temp_cookies_path):
+            try:
+                os.remove(temp_cookies_path)
+            except Exception:
+                pass
 
 def main():
     print("=" * 60)
